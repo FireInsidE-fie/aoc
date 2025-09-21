@@ -1,22 +1,34 @@
 const std = @import("std");
 const expect = std.testing.expect;
 
-fn print_slice(slice: []const u32) void {
+fn print_slice(slice: []const i32) void {
     std.debug.print("[!] - Printing a slice...\n", .{});
     for (slice) |item| {
         std.debug.print("{}\n", .{item});
     }
 }
 
-fn sorted_distance(list1: []const u32, list2: []const u32) u32 {
+fn sorted_distance(list1: []i32, list2: []i32) u32 {
     print_slice(list1);
     print_slice(list2);
-    return 0;
+
+    std.sort.insertion(i32, list1, {}, std.sort.asc(i32));
+    std.sort.insertion(i32, list2, {}, std.sort.asc(i32));
+
+    print_slice(list1);
+    print_slice(list2);
+
+    var sum: u32 = 0;
+    for (list1, list2) |item1, item2| {
+        std.debug.print("[!] - Sum currently at {}\n", .{sum});
+        sum = sum + @abs(item1 - item2);
+    }
+
+    return sum;
 }
 
 test "example" {
-    const list1 = [_]u32{3, 4, 2, 1, 3, 3};
-    const list2 = [_]u32{4, 3, 5, 3, 9, 4};
-
-    try expect(sorted_distance(&list1, &list2) == 11);
+    var list1 = [_]i32{3, 4, 2, 1, 3, 3};
+    var list2 = [_]i32{4, 3, 5, 3, 9, 4};
+    try expect(sorted_distance(list1[0..], list2[0..]) == 11);
 }
