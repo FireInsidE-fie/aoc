@@ -25,14 +25,18 @@ fn parse(path: []const u8) !void {
     const file_size = try file.getEndPos();
 
     const buffer = try allocator.alloc(u8, file_size);
+    defer allocator.free(buffer);
+
     _ = try file.readAll(buffer);
 
-    std.debug.print("{s}\n", buffer);
+    var slices = std.mem.splitAny(u8, buffer, "\n");
+    var slice = slices.next();
+    while (slice != null) : (slice = slices.next()) {
+        std.debug.print("{s}\n", .{slice.?});
+    }
 }
 
 fn sorted_distance(list1: []i32, list2: []i32) !u128 {
-    // const list = parse("input.txt");
-    _ = try parse("input.txt");
 
     return @abs(sum(list1) - sum(list2));
 }
@@ -41,4 +45,10 @@ test "example" {
     var list1 = [_]i32{ 3, 4, 2, 1, 3, 3 };
     var list2 = [_]i32{ 4, 3, 5, 3, 9, 3 };
     try expect(try sorted_distance(list1[0..], list2[0..]) == 11);
+}
+
+test "input" {
+    // const list = parse("input.txt");
+    try parse("input.txt");
+
 }
