@@ -17,27 +17,46 @@ fn sum(array: []i32) i128 {
     return result;
 }
 
-fn parse(path: []const u8) !void {
+fn parse_line(line: []const u8) struct {u32, u32} {
+    _ = line;
+    return .{0, 0};
+}
+
+fn parse(path: []const u8) !struct { []u32, []u32 } {
     const allocator = std.heap.page_allocator;
 
     const file = try std.fs.cwd().openFile(path, .{});
     defer file.close();
     const file_size = try file.getEndPos();
 
+    std.debug.print("{}\n", .{file_size});
+
     const buffer = try allocator.alloc(u8, file_size);
     defer allocator.free(buffer);
 
     _ = try file.readAll(buffer);
 
-    var slices = std.mem.splitAny(u8, buffer, "\n");
-    var slice = slices.next();
-    while (slice != null) : (slice = slices.next()) {
-        std.debug.print("{s}\n", .{slice.?});
+    const list1 = try allocator.alloc(u32, 1001);
+    var i: usize = 0;
+    const list2 = try allocator.alloc(u32, 1001);
+    var j: usize = 0;
+
+    var iter = std.mem.splitAny(u8, buffer, "\n");
+    var line = iter.next();
+    while (line != null) : (line = iter.next()) {
+        std.debug.print("{s}\n", .{line.?});
+
+        const n1, const n2 = parse_line(line.?);
+        list1[i] = n1;
+        list2[j] = n2;
+        i = i + 1;
+        j = j + 1;
     }
+
+    return .{list1, list2};
 }
 
 fn sorted_distance(list1: []i32, list2: []i32) !u128 {
-
     return @abs(sum(list1) - sum(list2));
 }
 
@@ -49,6 +68,8 @@ test "example" {
 
 test "input" {
     // const list = parse("input.txt");
-    try parse("input.txt");
+    const list1, const list2 = try parse("input.txt");
 
+    _ = list1;
+    _ = list2;
 }
